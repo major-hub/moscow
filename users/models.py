@@ -37,7 +37,7 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     # first_name, last_name already have
-    phone_number = models.CharField(max_length=12)
+    phone_number = models.CharField(max_length=12, blank=True)
 
     objects = CustomUserManager()
 
