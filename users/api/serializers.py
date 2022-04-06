@@ -3,6 +3,7 @@ from random import randint
 from django.core.cache import cache
 from rest_framework import serializers
 from django.core.mail.message import EmailMessage
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
 
@@ -67,6 +68,15 @@ class CustomUserRegistrationModelSerializer(serializers.ModelSerializer):
             'phone_number': {'required': True},
         }
 
+    @staticmethod
+    def get_tokens_for_user(user):
+        refresh = RefreshToken.for_user(user)
+
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+
     def validate(self, attrs):
         data = super().validate(attrs)
         code = cache.get(data['email'])
@@ -85,3 +95,6 @@ class CustomUserRegistrationModelSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+    def to_representation(self, instance):
+        return self.get_tokens_for_user(instance)
