@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # apps
     'academy.apps.AcademyConfig',
     'users.apps.UsersConfig',
+    'posts.apps.PostsConfig',
 
     # cleanup
     'django_cleanup.apps.CleanupConfig'
@@ -200,7 +201,6 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -210,3 +210,6 @@ CACHES = {
         }
     }
 }
+
+ESKIZ_EMAIL = os.getenv('ESKIZ_EMAIL')
+ESKIZ_SECRET_KEY = os.getenv('ESKIZ_SECRET_KEY')

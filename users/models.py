@@ -1,51 +1,22 @@
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser
 
 
-class CustomUserManager(BaseUserManager):
-    """Define a model manager for User model with 'email' field."""
-
-    def _create_user(self, email, password=None, **extra_fields):
-        """Create and save a User with the given email and password."""
-        if not email:
-            raise ValueError('The given email number must be set')
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_user(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        """Create and save a SuperUser with the given email and password."""
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self._create_user(email, password, **extra_fields)
+def phone_number_validator(ph: str):
+    ph = ph.replace(' ', '').replace('+', '')
+    if not bool(ph.isdigit() and ph.startswith('998') and len(ph) == 12):
+        raise ValidationError('Phone number must be like 998911144735')
 
 
 class CustomUser(AbstractUser):
-    username = None
-    email = models.EmailField(unique=True)
-    # first_name, last_name already have
-    phone_number = models.CharField(max_length=12, blank=True)
+    username = models.CharField(max_length=17, unique=True, validators=[phone_number_validator])
 
-    objects = CustomUserManager()
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    def __str__(self):
-        return self.email
+    def save(self, *args, **kwargs):
+        self.username = self.username.replace(' ', '').replace('+', '')
+        if not self.password.startswith("pbkdf2_sha256"):
+            self.set_password(self.password)
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-date_joined']

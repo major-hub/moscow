@@ -1,13 +1,13 @@
 from rest_framework.generics import CreateAPIView
 
 from users.api.serializers import (
-    EmailSerializer,
+    SmsSerializer,
     CustomUserRegistrationModelSerializer,
 )
 
 
-class EmailCreateAPIView(CreateAPIView):
-    serializer_class = EmailSerializer
+class SmsCreateAPIView(CreateAPIView):
+    serializer_class = SmsSerializer
 
 
 class CustomUserRegistrationCreateAPIView(CreateAPIView):

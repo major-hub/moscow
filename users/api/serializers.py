@@ -2,49 +2,53 @@ from random import randint
 
 from django.core.cache import cache
 from rest_framework import serializers
-from django.core.mail.message import EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from users.api.sms import eskiz_send_message
 from users.models import CustomUser
 
 
-class EmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+class SmsSerializer(serializers.Serializer):
+    username = serializers.CharField()
 
     class Meta:
-        fields = ['email']
+        fields = ['username']
 
     @staticmethod
-    def send_mail(code: str, to: list):
-        email = EmailMessage(subject='Confirmation code of Moscow Academy', body=code, to=to)
-        return email.send()
+    def validate_username(username: str):
+        ph = username.replace(' ', '').replace('+', '')
+        if not bool(ph.isdigit() and ph.startswith('998') and len(ph) == 12):
+            raise serializers.ValidationError('Phone number must be like 998911144735')
+        return ph
 
     def update(self, instance, validated_data):
         pass
 
     def create(self, validated_data):
         code = str(randint(10000, 99999))
-        email = validated_data['email']
+        username = validated_data['username']
 
-        if self.send_mail(code, [email]):
-            if CustomUser.objects.filter(email=email).exists():
-                user = CustomUser.objects.get(email=email)
-                user.set_password(code)
-                user.save()
+        res = eskiz_send_message(username, code)
+        user = CustomUser.objects.filter(username=username)
+
+        if res.status_code == 200:
+            if user.exists():
+                user.update(password=code)
                 created = False
             else:
-                cache.set(email, code, 3600)
+                cache.set(username, code, 3600)
                 created = True
             return {
                 "success": True,
                 "created": created,
-                "message": "Confirmation code is sent to your email"
+                "message": "Confirmation code is sent to your phone number"
             }
         else:
             return {
                 "success": False,
                 "created": False,
-                "message": "Please, check your email"
+                "message": "Please, check your phone number",
+                "error": res.json()
             }
 
     def to_representation(self, instance):
@@ -55,17 +59,15 @@ class CustomUserRegistrationModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'email',
+            'username',
             'first_name',
             'last_name',
-            'phone_number',
             'password',
         )
         extra_kwargs = {
             'password': {'write_only': True},
             'first_name': {'required': True},
             'last_name': {'required': True},
-            'phone_number': {'required': True},
         }
 
     @staticmethod
@@ -79,22 +81,10 @@ class CustomUserRegistrationModelSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        code = cache.get(data['email'])
-        if code:
-            if code == data['password']:
-                return data
+        code = cache.get(data['username'])
+        if code and code == data['password']:
+            return data
         raise serializers.ValidationError({'password': 'Incorrect code'})
-
-    def create(self, validated_data):
-        user = CustomUser.objects.create(
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            phone_number=validated_data['phone_number'],
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
 
     def to_representation(self, instance):
         return self.get_tokens_for_user(instance)
