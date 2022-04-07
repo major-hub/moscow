@@ -3,6 +3,30 @@ from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
 
 
+class Rectorate(TranslatableModel):
+    translations = TranslatedFields(
+        position=models.CharField(max_length=300),
+        full_name=models.CharField(max_length=300),
+        reception_time=models.CharField(max_length=300),
+        bio=models.TextField(blank=True)
+    )
+    image = models.ImageField(upload_to='rectorate/')
+    phone_number = models.CharField(max_length=17)
+
+    email = models.EmailField(blank=True)
+    instagram = models.URLField(blank=True)
+    telegram = models.URLField(blank=True)
+    facebook = models.URLField(blank=True)
+
+    rank = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        ordering = ['rank']
+
+
 class Faculty(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=300),
