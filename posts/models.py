@@ -7,8 +7,8 @@ class News(TranslatableModel):
         title=models.CharField(max_length=300),
         content=models.TextField()
     )
-    is_active = models.BooleanField(default=True)
     image = models.ImageField(upload_to='news/')
+    is_active = models.BooleanField(default=True)
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

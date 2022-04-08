@@ -1,3 +1,14 @@
 from django.contrib import admin
+from parler.admin import TranslatableAdmin
 
-# Register your models here.
+from .models import Gallery, News
+
+
+@admin.register(Gallery)
+class GalleryAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(News)
+class NewsAdmin(TranslatableAdmin):
+    pass
