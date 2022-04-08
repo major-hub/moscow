@@ -100,6 +100,7 @@ class Department(TranslatableModel):
         history=models.TextField(),  # ckeditor
         other=models.TextField(),  # ckeditor at the last part
     )
+    head_image = models.ImageField(upload_to='department_head/')
     head_phone_number = models.CharField(max_length=17)
 
     head_email = models.EmailField(blank=True)
