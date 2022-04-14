@@ -33,7 +33,9 @@ class SmsSerializer(serializers.Serializer):
 
         if res.status_code == 200:
             if user.exists():
-                user.update(password=code)
+                user = user.first()
+                user.set_password(code)
+                user.save()
                 created = False
             else:
                 cache.set(username, code, 3600)
