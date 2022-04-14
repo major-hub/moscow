@@ -1,10 +1,11 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.throttling import AnonRateThrottle
 
 from posts.api.paginations import Pagination6, Pagination24
 from posts.models import Gallery, News
 from posts.api.serializers import (
     GalleryModelSerializer,
-    NewsModelSerializer,
+    NewsModelSerializer, QuestionModelSerializer, ContactModelSerializer,
 )
 
 
@@ -21,3 +22,13 @@ class NewsListAPIView(ListAPIView):
 
     def get_queryset(self):
         return super().get_queryset().filter(is_active=True)
+
+
+class QuestionCreateAPIView(CreateAPIView):
+    serializer_class = QuestionModelSerializer
+    throttle_classes = [AnonRateThrottle]
+
+
+class ContactCreateAPIView(CreateAPIView):
+    serializer_class = ContactModelSerializer
+    throttle_classes = [AnonRateThrottle]

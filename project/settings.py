@@ -157,7 +157,11 @@ PARLER_LANGUAGES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '3/day',
+        'user': '100/day'
+    }
 }
 
 SIMPLE_JWT = {
