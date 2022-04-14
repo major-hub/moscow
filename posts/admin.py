@@ -15,10 +15,10 @@ class NewsAdmin(TranslatableAdmin):
 
 
 @admin.register(Question)
-class QuestionAdmin(TranslatableAdmin):
+class QuestionAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Contact)
-class ContactAdmin(TranslatableAdmin):
+class ContactAdmin(admin.ModelAdmin):
     pass
