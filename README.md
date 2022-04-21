@@ -73,8 +73,8 @@ ___
 ```
 server {
     listen 80;
-    server_name ? www.?;
-    root /home/major/frontend/?/build;
+    server_name bordo-jamoasi.uz www.bordo-jamoasi.uz;
+    root /home/major/frontend/poyabzal-build/dist;
     index index.html index.htm index.nginx-debian.html;
     location / {
         try_files $uri $uri/ /index.html;
